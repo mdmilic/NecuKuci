@@ -1,0 +1,79 @@
+package rs.necukuci;
+
+import android.content.pm.PackageManager;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+
+import rs.necukuci.config.AWSConfig;
+import rs.necukuci.permissions.PermissionChecker;
+import rs.necukuci.service.LocationUploadWorker;
+import rs.necukuci.storage.ddb.DDBLocationFileUploader;
+import rs.necukuci.storage.s3.S3LocationFileUploader;
+
+public class MainActivity extends AppCompatActivity {
+
+    public static final String TAG = "MainActivity";
+    private DDBLocationFileUploader ddbLocationFileUploader;
+    private S3LocationFileUploader s3LocationFileUploader;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        final AWSConfig awsConfig = new AWSConfig(this.getApplicationContext());
+        this.ddbLocationFileUploader = new DDBLocationFileUploader(awsConfig);
+        this.s3LocationFileUploader = new S3LocationFileUploader(awsConfig);
+//        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+//        locationListener = new BackgroundLocationListener(dataStore);
+
+
+//        provider = locationService.getBestProvider(new Criteria(), false);
+//        Location location = locationService.getLastKnownLocation(provider);
+
+//        AWSMobileClient.getInstance().initialize(this, new AWSStartupHandler() {
+//            @Override
+//            public void onComplete(final AWSStartupResult awsStartupResult) {
+//                Log.d(TAG, "AWSMobileClient is instantiated and you are connected to AWS! " + awsStartupResult.isIdentityIdAvailable());
+//            }
+//        }).execute();
+        if (PermissionChecker.checkNetworkPermission(this)) {
+            LocationUploadWorker.scheduleLocationUpload();
+        }
+//        startUpload();
+    }
+
+//    private void startUpload() {
+//        if (PermissionChecker.checkNetworkPermission(this)) {
+//            Log.i(TAG, Arrays.toString(this.fileList()));
+//            final File file3 = new File(this.getFilesDir(), this.fileList()[3]);
+////            ddbLocationFileUploader.execute(file.toPath());
+//            s3LocationFileUploader.uploadFiles(file3.toPath());
+//        }
+//    }
+
+    @Override
+    public void onRequestPermissionsResult(final int requestCode, @NonNull final String permissions[], @NonNull final int[] grantResults) {
+        switch (requestCode) {
+            case PermissionChecker.INTERNET_PERMISSION_CODE: {
+                Log.i(TAG, "Internet permissions granted!");
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted, yay! Do the
+                    // location-related task you need to do.
+//                    requestLocationUpdates();
+//                    startUpload();
+                    LocationUploadWorker.scheduleLocationUpload();
+                } else {
+                    Log.w(TAG, "Internet permissions denied!!!");
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+
+                }
+            }
+        }
+    }
+}
