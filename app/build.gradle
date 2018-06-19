@@ -16,11 +16,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    compileOptions {
-        targetCompatibility JavaVersion.VERSION_1_8
-        sourceCompatibility JavaVersion.VERSION_1_8
-    }
-    buildToolsVersion '27.0.3'
+//    compileOptions {
+//        targetCompatibility JavaVersion.VERSION_1_8
+//        sourceCompatibility JavaVersion.VERSION_1_8
+//    }
 }
 
 dependencies {
@@ -50,7 +49,6 @@ dependencies {
     // WorkManager
     def work_version = "1.0.0-alpha02"
     implementation "android.arch.work:work-runtime:$work_version"
-    // use -ktx for Kotlin
     // optional - Firebase JobDispatcher support
 //    implementation "android.arch.work:work-firebase:$work_version"
     // optional - Test helpers

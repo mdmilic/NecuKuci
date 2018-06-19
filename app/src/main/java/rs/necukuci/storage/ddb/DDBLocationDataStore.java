@@ -9,10 +9,11 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.google.common.collect.Lists;
 
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import rs.necukuci.config.AWSConfig;
 import rs.necukuci.storage.LocationMapper;
@@ -26,20 +27,23 @@ public class DDBLocationDataStore extends AsyncTask<Path, Void, Void> {
     private final DynamoDBMapper dynamoDBMapper;
 
     public DDBLocationDataStore(final AWSConfig awsConfig) {
+        Log.i(TAG, "Creating DDBStore");
         this.dynamoDBMapper = DynamoDBMapper.builder()
-                                            .dynamoDBClient(new AmazonDynamoDBClient(awsConfig.getCredentialsProvider()))
-                                            .awsConfiguration(awsConfig.getAwsConfiguration())
+                                            .dynamoDBClient(new AmazonDynamoDBClient(AWSConfig.getCredentialsProvider()))
+                                            .awsConfiguration(AWSConfig.getAwsConfiguration())
                                             .build();
+        Log.i(TAG, "Created DDBStore");
     }
 
     @Override
     protected Void doInBackground(final Path... paths) {
+        Log.i(TAG, "Executing in background...");
         try {
             for (final Path path : paths) {
                 batchStoreInDatabase(path);
                 // Delete the file that is successfully stored in DDB and S3
                 Log.i(TAG, "Attempting to delete " + path.getFileName());
-                path.toFile().delete();
+//                path.toFile().delete();
             }
         } catch (final Exception e) {
             Log.e(TAG, "Failed to store file in the DDB: ", e);
@@ -48,9 +52,30 @@ public class DDBLocationDataStore extends AsyncTask<Path, Void, Void> {
     }
 
     private void batchStoreInDatabase(final Path locations) throws Exception {
-        final List<GeoStoreTableRow> geoStoreRows = Files.lines(locations)
-                                                         .map(l -> convertToRow(l))
-                                                         .collect(Collectors.toList());
+
+//        final Function<String, GeoStoreTableRow> stringObjectFunction = new Function<String, GeoStoreTableRow>() {
+//            @Override
+//            public GeoStoreTableRow apply(final String s) {
+//                return convertToRow(s);
+//            }
+//        };//l -> convertToRow(l);
+//        final List<GeoStoreTableRow> geoStoreRows = Files.lines(locations)
+//                                                         .map(stringObjectFunction)
+//                                                         .collect(Collectors.toList());
+
+        final List<String> lines = Files.readAllLines(locations, Charset.defaultCharset());
+        final List<GeoStoreTableRow> geoStoreRows = new ArrayList<>();
+        final String[] split = locations.getFileName().toString().split("-");
+        final String tag;
+        if (split.length == 2) {
+            tag = split[0];
+        } else {
+            tag = "android";
+        }
+        Log.i(TAG, "Converting line ");
+        for (final String line : lines) {
+            geoStoreRows.add(convertToRow(line, tag));
+        }
 
         for (List<GeoStoreTableRow> batch : Lists.partition(geoStoreRows, BATCH_SIZE)) {
             writeBatch(batch);
@@ -67,7 +92,7 @@ public class DDBLocationDataStore extends AsyncTask<Path, Void, Void> {
     }
 
     @VisibleForTesting
-    protected GeoStoreTableRow convertToRow(final String line) {
+    protected GeoStoreTableRow convertToRow(final String line, final String...tags) {
         final String[] lineParts = line.split(": ");
 
         final Location location;
@@ -80,6 +105,6 @@ public class DDBLocationDataStore extends AsyncTask<Path, Void, Void> {
         } else {
             throw new IllegalArgumentException("Line is malformed: " + line);
         }
-        return GeoStoreTableRow.from("us-east-1:6bd5c573-8cbd-4917-ba39-784747e7cb98", location, "android");
+        return GeoStoreTableRow.from("us-east-1:6bd5c573-8cbd-4917-ba39-784747e7cb98", location, tags);
     }
 }

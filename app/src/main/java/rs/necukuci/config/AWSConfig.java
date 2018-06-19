@@ -13,11 +13,11 @@ public class AWSConfig {
 
     private final Context context;
 
-    public AWSCredentialsProvider getCredentialsProvider() {
+    public static AWSCredentialsProvider getCredentialsProvider() {
         return AWSMobileClient.getInstance().getCredentialsProvider();
     }
 
-    public AWSConfiguration getAwsConfiguration() {
+    public static AWSConfiguration getAwsConfiguration() {
         return AWSMobileClient.getInstance().getConfiguration();
     }
 }

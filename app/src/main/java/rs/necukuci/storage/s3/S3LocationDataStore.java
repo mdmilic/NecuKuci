@@ -24,8 +24,8 @@ public class S3LocationDataStore extends AsyncTask<Path, Void, Void> {
         this.awsConfig = awsConfig;
         this.transferUtility = TransferUtility.builder()
                                               .context(awsConfig.getContext())
-                                              .s3Client(new AmazonS3Client(awsConfig.getCredentialsProvider()))
-                                              .awsConfiguration(awsConfig.getAwsConfiguration())
+                                              .s3Client(new AmazonS3Client(AWSConfig.getCredentialsProvider()))
+                                              .awsConfiguration(AWSConfig.getAwsConfiguration())
                                               .build();
     }
 
@@ -47,7 +47,13 @@ public class S3LocationDataStore extends AsyncTask<Path, Void, Void> {
         // Attach a listener to the observer to get state update and progress notifications
 
         //TODO: Find a better way
-        final Runnable runnable = () -> new DDBLocationFileUploader(this.awsConfig).writeLocationFiles(path);
+//        final Runnable runnable = () -> new DDBLocationFileUploader(this.awsConfig).writeLocationFiles(path);
+        final Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                new DDBLocationFileUploader(S3LocationDataStore.this.awsConfig).writeLocationFiles(path);
+            }
+        };
 
         final TransferListener transferListener = new S3LocationTransferListener(runnable);
         final ObjectMetadata metadata = new ObjectMetadata();

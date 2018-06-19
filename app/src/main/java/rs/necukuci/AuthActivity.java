@@ -70,6 +70,7 @@ public class AuthActivity extends AppCompatActivity {
     }
 
     private void startLocationCollectionService() {
+        Log.i(TAG, "Starting location service from Auth");
         final Intent locationCollectionServiceIntent = new Intent(this, LocationCollectionService.class);
 
         if (PermissionChecker.checkLocationPermission(this)) {

@@ -3,6 +3,7 @@ package rs.necukuci.storage.s3;
 import java.nio.file.Path;
 
 import rs.necukuci.config.AWSConfig;
+import rs.necukuci.util.MainLooperExecutor;
 
 public class S3LocationFileUploader {
 //    private final S3LocationDataStore dataStore;
@@ -17,6 +18,13 @@ public class S3LocationFileUploader {
      * @param paths file paths that need uploading to S3
      */
     public void uploadFiles(final Path...paths) {
-        new S3LocationDataStore(awsConfig).execute(paths);
+        final Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                new S3LocationDataStore(awsConfig).execute(paths);
+            }
+        };
+
+        MainLooperExecutor.executeOnMainLoop(runnable);
     }
 }
