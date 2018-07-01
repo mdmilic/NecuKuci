@@ -11,6 +11,7 @@ import rs.necukuci.permissions.PermissionChecker;
 import rs.necukuci.service.LocationCollectionService;
 import rs.necukuci.service.LocationUploadWorker;
 import rs.necukuci.service.ServiceHelper;
+import rs.necukuci.util.EmulatorUtils;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -40,6 +41,14 @@ public class MainActivity extends AppCompatActivity {
 //                Log.d(TAG, "AWSMobileClient is instantiated and you are connected to AWS! " + awsStartupResult.isIdentityIdAvailable());
 //            }
 //        }).execute();
+        if (EmulatorUtils.isEmulator()) {
+            Log.i(TAG, "This is EMULATOR build");
+        } else {
+            Log.i(TAG, "This is NOT EMULATOR build");
+        }
+
+
+
         if (PermissionChecker.checkNetworkPermission(this)) {
             LocationUploadWorker.scheduleLocationUpload();
         }

@@ -6,7 +6,6 @@ import rs.necukuci.config.AWSConfig;
 import rs.necukuci.util.MainLooperExecutor;
 
 public class DDBLocationFileUploader {
-    private static final String TAG = "DDBFileUploader";
     private AWSConfig awsConfig;
 
     public DDBLocationFileUploader(final AWSConfig awsConfig) {

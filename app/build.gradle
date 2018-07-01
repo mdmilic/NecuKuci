@@ -47,7 +47,7 @@ dependencies {
     implementation 'com.android.support:design:27.1.1'
     implementation files('libs/s2-geometry-java.jar')
     // WorkManager
-    def work_version = "1.0.0-alpha02"
+    def work_version = "1.0.0-alpha04"
     implementation "android.arch.work:work-runtime:$work_version"
     // optional - Firebase JobDispatcher support
 //    implementation "android.arch.work:work-firebase:$work_version"

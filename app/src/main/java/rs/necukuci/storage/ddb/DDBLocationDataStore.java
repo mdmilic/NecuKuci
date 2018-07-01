@@ -17,7 +17,7 @@ import java.util.List;
 
 import rs.necukuci.config.AWSConfig;
 import rs.necukuci.storage.LocationMapper;
-import rs.necukuci.storage.ddb.model.GeoStoreTableRow;
+import rs.necukuci.storage.ddb.model.GeoStoreRow;
 
 public class DDBLocationDataStore extends AsyncTask<Path, Void, Void> {
     private static final String TAG = DDBLocationDataStore.class.getSimpleName();
@@ -37,7 +37,7 @@ public class DDBLocationDataStore extends AsyncTask<Path, Void, Void> {
 
     @Override
     protected Void doInBackground(final Path... paths) {
-        Log.i(TAG, "Executing in background...");
+        Log.i(TAG, "DDB Executing in background...");
         try {
             for (final Path path : paths) {
                 batchStoreInDatabase(path);
@@ -64,7 +64,7 @@ public class DDBLocationDataStore extends AsyncTask<Path, Void, Void> {
 //                                                         .collect(Collectors.toList());
 
         final List<String> lines = Files.readAllLines(locations, Charset.defaultCharset());
-        final List<GeoStoreTableRow> geoStoreRows = new ArrayList<>();
+        final List<GeoStoreRow> geoStoreRows = new ArrayList<>();
         final String[] split = locations.getFileName().toString().split("-");
         final String tag;
         if (split.length == 2) {
@@ -77,12 +77,12 @@ public class DDBLocationDataStore extends AsyncTask<Path, Void, Void> {
             geoStoreRows.add(convertToRow(line, tag));
         }
 
-        for (List<GeoStoreTableRow> batch : Lists.partition(geoStoreRows, BATCH_SIZE)) {
+        for (List<GeoStoreRow> batch : Lists.partition(geoStoreRows, BATCH_SIZE)) {
             writeBatch(batch);
         }
     }
 
-    private void writeBatch(final List<GeoStoreTableRow> batch) throws Exception {
+    private void writeBatch(final List<GeoStoreRow> batch) throws Exception {
         final List<DynamoDBMapper.FailedBatch> failedBatches = dynamoDBMapper.batchSave(batch);
         Log.i(TAG, "Failures: " + failedBatches.size());
         for (DynamoDBMapper.FailedBatch failedBatch : failedBatches) {
@@ -92,7 +92,7 @@ public class DDBLocationDataStore extends AsyncTask<Path, Void, Void> {
     }
 
     @VisibleForTesting
-    protected GeoStoreTableRow convertToRow(final String line, final String...tags) {
+    protected GeoStoreRow convertToRow(final String line, final String...tags) {
         final String[] lineParts = line.split(": ");
 
         final Location location;
@@ -105,6 +105,6 @@ public class DDBLocationDataStore extends AsyncTask<Path, Void, Void> {
         } else {
             throw new IllegalArgumentException("Line is malformed: " + line);
         }
-        return GeoStoreTableRow.from("us-east-1:6bd5c573-8cbd-4917-ba39-784747e7cb98", location, tags);
+        return GeoStoreRow.from("us-east-1:6bd5c573-8cbd-4917-ba39-784747e7cb98", location, tags);
     }
 }

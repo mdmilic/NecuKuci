@@ -3,6 +3,7 @@ package rs.necukuci.storage.s3;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.amazonaws.mobile.auth.core.IdentityManager;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
@@ -13,6 +14,7 @@ import java.nio.file.Path;
 
 import rs.necukuci.config.AWSConfig;
 import rs.necukuci.storage.ddb.DDBLocationFileUploader;
+import rs.necukuci.util.EmulatorUtils;
 
 public class S3LocationDataStore extends AsyncTask<Path, Void, Void> {
     private static final String TAG = S3LocationDataStore.class.getSimpleName();
@@ -21,16 +23,19 @@ public class S3LocationDataStore extends AsyncTask<Path, Void, Void> {
     private final AWSConfig awsConfig;
 
     S3LocationDataStore(final AWSConfig awsConfig) {
+        Log.i(TAG, "Creating TransferUtility");
         this.awsConfig = awsConfig;
         this.transferUtility = TransferUtility.builder()
                                               .context(awsConfig.getContext())
                                               .s3Client(new AmazonS3Client(AWSConfig.getCredentialsProvider()))
                                               .awsConfiguration(AWSConfig.getAwsConfiguration())
                                               .build();
+        Log.i(TAG, "Created TransferUtility");
     }
 
     @Override
     protected Void doInBackground(final Path... paths) {
+        Log.i(TAG, "S3 Executing in background...");
         for (final Path path : paths) {
             try {
                 uploadPathToPermanentStorage(path);
@@ -42,7 +47,7 @@ public class S3LocationDataStore extends AsyncTask<Path, Void, Void> {
     }
 
     private void uploadPathToPermanentStorage(final Path path) {
-        Log.i(TAG, "Trying to upload file: " + path.getFileName());
+        Log.i(TAG, "Trying to upload file: " + path.toAbsolutePath()); //getFileName());
 
         // Attach a listener to the observer to get state update and progress notifications
 
@@ -58,7 +63,7 @@ public class S3LocationDataStore extends AsyncTask<Path, Void, Void> {
         final TransferListener transferListener = new S3LocationTransferListener(runnable);
         final ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentType("text/plain");
-        final String s3Key = String.format("private/%s/locationsData/%s", "us-east-1:6bd5c573-8cbd-4917-ba39-784747e7cb98", path.getFileName());
+        final String s3Key = getS3Key(path);
         final TransferObserver transferObserver = transferUtility.upload(s3Key,
                                                                          path.toFile(),
                                                                          metadata,
@@ -66,5 +71,20 @@ public class S3LocationDataStore extends AsyncTask<Path, Void, Void> {
                                                                          transferListener);
 
         Log.i(TAG, "Upload attempted to: " + transferObserver.getBucket()+"/"+transferObserver.getKey() + " State: " + transferObserver.getState());
+    }
+
+    private String getS3Key(final Path path) {
+        if (!IdentityManager.getDefaultIdentityManager().isUserSignedIn()) {
+            throw new IllegalStateException("User is not signed in, cant fetch credentials for AWS");
+        }
+
+        final String userId = "us-east-1:6bd5c573-8cbd-4917-ba39-784747e7cb98";
+        Log.i(TAG, "UserID: |" + IdentityManager.getDefaultIdentityManager().getCachedUserID()+"|");
+//        final String userId = IdentityManager.getDefaultIdentityManager().getCachedUserID();
+        if (EmulatorUtils.isEmulator()) {
+            return String.format("private/%s/test/locationsData/%s", userId, path.getFileName());
+        } else {
+            return String.format("private/%s/locationsData/%s", userId, path.getFileName());
+        }
     }
 }

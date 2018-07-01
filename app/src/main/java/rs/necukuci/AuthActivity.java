@@ -27,8 +27,8 @@ public class AuthActivity extends AppCompatActivity {
         // Add a call to initialize AWSMobileClient
         AWSMobileClient.getInstance().initialize(this, new AWSStartupHandler() {
             @Override
-            public void onComplete(AWSStartupResult awsStartupResult) {
-                Log.i("SignIn", "Init signing");
+            public void onComplete(final AWSStartupResult awsStartupResult) {
+                Log.i("SignIn", "Init signing " + awsStartupResult);
                 final SignInUI signin = (SignInUI) AWSMobileClient.getInstance().getClient(AuthActivity.this, SignInUI.class);
                 signin.login(AuthActivity.this, MainActivity.class).execute();
             }

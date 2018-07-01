@@ -15,7 +15,7 @@ import rs.necukuci.model.*;
 @Builder
 @Data
 @DynamoDBTable(tableName = "necukuci-mobilehub-725813148-GeoStore")
-public class GeoStoreTableRow {
+public class GeoStoreTableRow extends GeoStoreRow{
     // Keys
     // Hash key for primary table and GSI
     @DynamoDBHashKey
