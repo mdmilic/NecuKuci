@@ -4,7 +4,7 @@ import android.os.Build;
 
 public class EmulatorUtils {
     public static boolean isEmulator() {
-        final boolean b = Build.FINGERPRINT.startsWith("generic")
+        return Build.FINGERPRINT.startsWith("generic")
                 || Build.FINGERPRINT.startsWith("unknown")
                 || Build.MODEL.contains("google_sdk")
                 || Build.MODEL.contains("Emulator")
@@ -12,6 +12,5 @@ public class EmulatorUtils {
                 || Build.MANUFACTURER.contains("Genymotion")
                 || (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
                 || "google_sdk".equals(Build.PRODUCT);
-        return !b;
     }
 }
