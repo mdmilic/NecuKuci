@@ -21,9 +21,6 @@ import android.util.Log;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 import rs.necukuci.R;
 import rs.necukuci.location.BackgroundFusedLocationCallback;
 import rs.necukuci.location.BackgroundLocationListener;
@@ -39,12 +36,9 @@ public class LocationCollectionService extends Service {
 
     private LocationManager locationManager;
     private LocationListener locationListener;
-    private int counter;
-    private Timer timer;
 
     public LocationCollectionService() {
         super();
-        this.counter = 0;
         Log.i(TAG, "Service created! " + + Process.myTid());
     }
 
@@ -53,7 +47,6 @@ public class LocationCollectionService extends Service {
         super.onStartCommand(intent, flags, startId);
         final Notification notification = registerNotification();
         this.startForeground(1, notification);
-//        startTimer();
 
         final LocalFileLocationDataStore listenerDataStore = new LocalFileLocationDataStore(this.getApplicationContext(), "locationListener");
         final LocalFileLocationDataStore callbackDataStore = new LocalFileLocationDataStore(this.getApplicationContext(), "locationCallback");
@@ -75,7 +68,6 @@ public class LocationCollectionService extends Service {
 //        final Intent broadcastIntent = new Intent("rs.necukuci.RestartLocationService");
         final Intent broadcastIntent = new Intent(this.getApplicationContext(), ServiceRestartBroadcastReceiver.class);
         sendBroadcast(broadcastIntent);
-//        stoptimertask();
     }
 
     private void requestFusedLocationUpdates() {
@@ -95,7 +87,7 @@ public class LocationCollectionService extends Service {
         final Notification notification;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "NecuBre", importance);
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "Necu kuci bre", importance);
             channel.setDescription("Necu Kuci notification channel");
             // Register the channel with the system; you can't change the importance
             // or other notification behaviors after this
@@ -116,30 +108,6 @@ public class LocationCollectionService extends Service {
                     .build();
         }
         return notification;
-    }
-
-    public void startTimer() {
-        //set a new Timer
-        timer = new Timer();
-
-        //schedule the timer, to wake up every 1 second
-        timer.schedule(initializeTimerTask(), 1000, 1000); //
-    }
-
-    public TimerTask initializeTimerTask() {
-        return new TimerTask() {
-            public void run() {
-                Log.i("in timer", "in timer ++++  "+ (counter++));
-            }
-        };
-    }
-
-    public void stoptimertask() {
-        //stop the timer, if it's not already null
-        if (timer != null) {
-            timer.cancel();
-            timer = null;
-        }
     }
 
     @Nullable

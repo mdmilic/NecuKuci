@@ -16,8 +16,8 @@ public class S3LocationTransferListener implements TransferListener {
     // This is executed back on main thread regardless of the thread that constructs it
     @Override
     public void onStateChanged(final int id, final TransferState state) {
-        Log.i(TAG, "Upload state changed: " + state);
-        //TODO: State is completed even after fail
+        Log.i(TAG, "Upload state changed["+ id +"]: " + state);
+        //TODO: State is completed even after fail (though according to doc it shouldn't)
         if (TransferState.COMPLETED == state) {
 //            //upload to DDB
             runnable.run();

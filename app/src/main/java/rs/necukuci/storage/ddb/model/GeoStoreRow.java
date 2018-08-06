@@ -1,7 +1,7 @@
 package rs.necukuci.storage.ddb.model;
 
-import android.location.Location;
 
+import rs.necukuci.model.Location;
 import rs.necukuci.util.EmulatorUtils;
 
 public abstract class GeoStoreRow {

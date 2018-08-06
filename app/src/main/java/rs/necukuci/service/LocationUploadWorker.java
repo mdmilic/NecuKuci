@@ -5,8 +5,6 @@ import android.util.Log;
 
 import java.io.File;
 import java.time.Duration;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 
 import androidx.work.Constraints;
@@ -16,13 +14,13 @@ import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 import androidx.work.Worker;
 import rs.necukuci.config.AWSConfig;
+import rs.necukuci.storage.local.LocalFileLocationStoreUtils;
 import rs.necukuci.storage.s3.S3LocationFileUploader;
 import rs.necukuci.util.MainLooperExecutor;
 
 public class LocationUploadWorker extends Worker {
 
     private static final String TAG = LocationUploadWorker.class.getSimpleName();
-//    private final S3LocationFileUploader s3LocationFileUploader;
 
     public LocationUploadWorker() {
         super();
@@ -31,25 +29,33 @@ public class LocationUploadWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
+        try {
+
         Log.i(TAG, "DoWork Initiated: " + getId());
         Log.i(TAG, "DoWork run attempt count: " + getRunAttemptCount());
         Log.i(TAG, "DoWork Tags: " + getTags());
         return startUpload();
+        } catch (final Throwable t) {
+            Log.e(TAG, "Failed uploading file: ", t);
+            return Result.FAILURE;
+        }
     }
 
     private Result startUpload() {
-        final AWSConfig awsConfig = new AWSConfig(this.getApplicationContext());
-        final S3LocationFileUploader s3LocationFileUploader = new S3LocationFileUploader(awsConfig);
         Log.i(TAG, "Files to upload: " + Arrays.toString(this.getApplicationContext().fileList()));
+        final S3LocationFileUploader s3LocationFileUploader = new S3LocationFileUploader(new AWSConfig(this.getApplicationContext()));
         for (final String fileName : this.getApplicationContext().fileList()) {
             if (isValidFileName(fileName) && !isCurrentFile(fileName)) {
                 final File file = new File(this.getApplicationContext().getFilesDir(), fileName);
-                Log.i(TAG, "Starting upload of file " + fileName);
-
                 Log.i(TAG, String.format("Can read %s, write %s, ex %s", file.canRead(), file.canWrite(), file.canExecute()));
                 Log.i(TAG, "Starting upload of filePath " + file.getAbsolutePath());
 
-                s3LocationFileUploader.uploadFiles(file.toPath());
+                try {
+                    Thread.sleep(2000);
+                    s3LocationFileUploader.uploadFiles(file.toPath());
+                } catch (final InterruptedException e) {
+                    Log.e(TAG, "Thread interrupted while sleeping!!!");
+                }
             } else {
                 Log.w(TAG, "Skipping file " + fileName);
             }
@@ -58,29 +64,26 @@ public class LocationUploadWorker extends Worker {
     }
 
     public static void scheduleLocationUpload() {
-        Log.i(TAG, "Scheduling uploads from: " + MainLooperExecutor.isMainThread());
         WorkManager.getInstance().cancelAllWork();
+        Log.i(TAG, "Scheduling uploads from: " + MainLooperExecutor.isMainThread());
         final Constraints constraints = new Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build();
-        final PeriodicWorkRequest periodicLocationUploadRequest = new PeriodicWorkRequest.Builder(LocationUploadWorker.class, Duration.ofHours(3))
+        final PeriodicWorkRequest periodicLocationUploadRequest = new PeriodicWorkRequest.Builder(LocationUploadWorker.class, Duration.ofMinutes(30))
                 .setConstraints(constraints)
                 .addTag("PeriodicLocationDataUpload")
                 .build();
-//        final OneTimeWorkRequest locationUploadRequest = new OneTimeWorkRequest.Builder(LocationUploadWorker.class)
-//                .setConstraints(constraints)
-//                .build();
-//        WorkManager.getInstance().enqueue(OneTimeWorkRequest.from(LocationUploadWorker.class));
-//        WorkManager.getInstance().enqueue(locationUploadRequest);
         WorkManager.getInstance().enqueueUniquePeriodicWork("PeriodicLocationDataUpload", ExistingPeriodicWorkPolicy.REPLACE, periodicLocationUploadRequest);
     }
 
     private boolean isValidFileName(final String fileName) {
-        return fileName.startsWith("myLocation")
+        return (fileName.startsWith("myLocation")
                 || fileName.startsWith("locationCallback")
-                || fileName.startsWith("locationListener");
+                || fileName.startsWith("locationListener"))
+                && !fileName.endsWith("bak");
     }
+
     private boolean isCurrentFile(final String fileName) {
-        return fileName.contains(Instant.now().truncatedTo(ChronoUnit.DAYS).toString());
+        return fileName.contains(LocalFileLocationStoreUtils.getCurrentFileName());
     }
 }

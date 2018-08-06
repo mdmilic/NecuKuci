@@ -20,11 +20,9 @@ public class S3LocationDataStore extends AsyncTask<Path, Void, Void> {
     private static final String TAG = S3LocationDataStore.class.getSimpleName();
 
     private final TransferUtility transferUtility;
-    private final AWSConfig awsConfig;
 
     S3LocationDataStore(final AWSConfig awsConfig) {
         Log.i(TAG, "Creating TransferUtility");
-        this.awsConfig = awsConfig;
         this.transferUtility = TransferUtility.builder()
                                               .context(awsConfig.getContext())
                                               .s3Client(new AmazonS3Client(AWSConfig.getCredentialsProvider()))
@@ -40,7 +38,7 @@ public class S3LocationDataStore extends AsyncTask<Path, Void, Void> {
             try {
                 uploadPathToPermanentStorage(path);
             } catch (final Exception e) {
-                Log.e(TAG, "Unhandled exception uploading file " + path.getFileName(), e);
+                Log.e(TAG, "Exception uploading file " + path.getFileName(), e);
             }
         }
         return null;
@@ -56,7 +54,7 @@ public class S3LocationDataStore extends AsyncTask<Path, Void, Void> {
         final Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                new DDBLocationFileUploader(S3LocationDataStore.this.awsConfig).writeLocationFiles(path);
+                new DDBLocationFileUploader().writeLocationFiles(path);
             }
         };
 
@@ -78,13 +76,11 @@ public class S3LocationDataStore extends AsyncTask<Path, Void, Void> {
             throw new IllegalStateException("User is not signed in, cant fetch credentials for AWS");
         }
 
-        final String userId = "us-east-1:6bd5c573-8cbd-4917-ba39-784747e7cb98";
-        Log.i(TAG, "UserID: |" + IdentityManager.getDefaultIdentityManager().getCachedUserID()+"|");
-//        final String userId = IdentityManager.getDefaultIdentityManager().getCachedUserID();
+        final String cachedUserID = IdentityManager.getDefaultIdentityManager().getCachedUserID();
         if (EmulatorUtils.isEmulator()) {
-            return String.format("private/%s/test/locationsData/%s", userId, path.getFileName());
+            return String.format("private/%s/test/locationsData/%s", cachedUserID, path.getFileName());
         } else {
-            return String.format("private/%s/locationsData/%s", userId, path.getFileName());
+            return String.format("private/%s/locationsData/%s", cachedUserID, path.getFileName());
         }
     }
 }

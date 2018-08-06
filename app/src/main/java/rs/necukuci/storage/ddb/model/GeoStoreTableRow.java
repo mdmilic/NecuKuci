@@ -1,16 +1,24 @@
 package rs.necukuci.storage.ddb.model;
 
-import android.location.*;
-import android.util.*;
+import android.util.Log;
 
-import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.*;
-import com.google.common.collect.*;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBAttribute;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBHashKey;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBIndexHashKey;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBIndexRangeKey;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBRangeKey;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBTable;
+import com.google.common.collect.Sets;
 
-import java.util.*;
+import java.util.Locale;
+import java.util.Set;
 
-import lombok.*;
-import rs.necukuci.geo.s2.*;
-import rs.necukuci.model.*;
+import lombok.Builder;
+import lombok.Data;
+import rs.necukuci.geo.s2.S2Utils;
+import rs.necukuci.model.GeoHash;
+import rs.necukuci.model.GeoPoint;
+import rs.necukuci.model.Location;
 
 @Builder
 @Data

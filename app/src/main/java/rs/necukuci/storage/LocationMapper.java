@@ -11,7 +11,7 @@ public class LocationMapper {
         return GSON_MAPPER.toJson(location);
     }
 
-    public Location fromJson(final String jsonLocation) {
-        return GSON_MAPPER.fromJson(jsonLocation, Location.class);
+    public rs.necukuci.model.Location fromJson(final String jsonLocation) {
+        return GSON_MAPPER.fromJson(jsonLocation, rs.necukuci.model.Location.class);
     }
 }

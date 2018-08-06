@@ -1,6 +1,5 @@
 package rs.necukuci.storage.ddb.model;
 
-import android.location.Location;
 import android.util.Log;
 
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBAttribute;
@@ -19,6 +18,7 @@ import lombok.Data;
 import rs.necukuci.geo.s2.S2Utils;
 import rs.necukuci.model.GeoHash;
 import rs.necukuci.model.GeoPoint;
+import rs.necukuci.model.Location;
 
 @Builder
 @Data

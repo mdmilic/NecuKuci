@@ -8,12 +8,11 @@ import android.util.Log;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 
 import rs.necukuci.storage.LocationMapper;
 
 public class LocalFileLocationDataStore {
-    private static final String STORAGE_TAG = "storage";
+    private static final String STORAGE_TAG = LocalFileLocationDataStore.class.getSimpleName();
     private static final LocationMapper LOCATION_MAPPER = new LocationMapper();
     private final Context context;
     private final String filePrefix;
@@ -32,18 +31,16 @@ public class LocalFileLocationDataStore {
     }
 
     public void writeLocation(final Location location) {
-        final Instant time = Instant.now();
-        final String filename = filePrefix + "-" + time.truncatedTo(ChronoUnit.DAYS) + ".txt";
         try {
-//            final String jsonLocation = objectMapper.writeValueAsString(location);
-            final String jsonLocation = time + ": " + LOCATION_MAPPER.toJson(location) + "\n";
+            final String filename = filePrefix + "-" + LocalFileLocationStoreUtils.getCurrentFileName() + ".txt";
+            final String jsonLocation = Instant.now() + ": " + LOCATION_MAPPER.toJson(location) + "\n";
             Log.i(STORAGE_TAG, "Writing to " + filename + ": " + jsonLocation);
             final FileOutputStream outputStream = context.openFileOutput(filename, Context.MODE_APPEND);
             outputStream.write(jsonLocation.getBytes());
             outputStream.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+            Log.i(STORAGE_TAG, "Location written to file: " + context.getFilesDir().getAbsolutePath());
+        } catch (final Exception e) {
+            Log.e(STORAGE_TAG, "Exception writing location to file", e);
         }
-        Log.i(STORAGE_TAG, "File written! " + context.getFilesDir().getAbsolutePath());
     }
 }
