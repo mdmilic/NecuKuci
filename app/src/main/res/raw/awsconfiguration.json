@@ -47,5 +47,9 @@
       "Bucket": "necukuci-userfiles-mobilehub-725813148",
       "Region": "us-east-1"
     }
+  },
+  "FacebookSignIn": {
+    "AppId": "279735739502653",
+    "Permissions": "public_profile"
   }
 }

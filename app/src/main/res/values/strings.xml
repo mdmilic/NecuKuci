@@ -4,4 +4,7 @@
     <string name="ok">OK</string>
     <string name="title_location_permission">Location Permission Request</string>
     <string name="title_activity_auth">AuthActivity</string>
+    <!--FB Strings-->
+    <string name="facebook_app_id">279735739502653</string>
+    <string name="fb_login_protocol_scheme">fb279735739502653</string>
 </resources>
