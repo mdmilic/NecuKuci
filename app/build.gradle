@@ -27,6 +27,7 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     implementation 'com.google.android.gms:play-services-location:15.0.1'
+    implementation 'com.google.android.gms:play-services-base:15.0.1'
     implementation 'com.fasterxml.jackson.core:jackson-core:2.9.5'
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.9.5'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.5'
@@ -39,21 +40,24 @@ dependencies {
     implementation 'com.amazonaws:aws-android-sdk-s3:2.6.+'
     implementation 'com.amazonaws:aws-android-sdk-mobileanalytics:2.6.+'
     // Mobile Client for initializing the SDK
-    implementation('com.amazonaws:aws-android-sdk-mobile-client:2.6.+@aar') { transitive = true }
+    implementation ('com.amazonaws:aws-android-sdk-mobile-client:2.6.+@aar') { transitive = true }
     // Cognito UserPools for SignIn
-    implementation('com.amazonaws:aws-android-sdk-auth-userpools:2.6.+@aar') { transitive = true }
-    implementation 'com.amazonaws:aws-android-sdk-cognitoidentityprovider:2.6.0'
+    implementation ('com.amazonaws:aws-android-sdk-auth-userpools:2.6.+@aar') { transitive = true }
+    implementation ('com.amazonaws:aws-android-sdk-cognitoidentityprovider:2.6.0') { transitive = true }
 
     // Sign in UI Library
-    implementation('com.amazonaws:aws-android-sdk-auth-ui:2.6.+@aar') { transitive = true }
-    implementation 'com.amazonaws:aws-android-sdk-auth-core:2.6.+@aar'
+    implementation ('com.amazonaws:aws-android-sdk-auth-ui:2.6.+@aar') { transitive = true }
+    implementation ('com.amazonaws:aws-android-sdk-auth-core:2.6.+@aar') { transitive = true }
     implementation 'com.android.support:design:27.1.1'
-    implementation files('libs/s2-geometry-java.jar')
     // FB Signing support
-    implementation 'com.facebook.android:facebook-android-sdk:[4,5)'
+    implementation 'com.facebook.android:facebook-android-sdk:4.35.0'
     implementation 'com.android.support:support-v4:27.1.1'
-    implementation 'com.amazonaws:aws-android-sdk-auth-facebook:2.6.+@aar'
-    implementation 'com.amazonaws:aws-android-sdk-auth-google:2.6.+@aar'
+    implementation ('com.amazonaws:aws-android-sdk-auth-facebook:2.6.+@aar') { transitive = true }
+    implementation ('com.amazonaws:aws-android-sdk-auth-google:2.6.+@aar') { transitive = true }
+    implementation 'com.google.android.gms:play-services-auth:15.0.1'
+
+    // S2 support
+    implementation files('libs/s2-geometry-java.jar')
 
     // WorkManager
     def work_version = "1.0.0-alpha04"

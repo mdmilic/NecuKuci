@@ -49,7 +49,6 @@ public class AuthActivity extends AppCompatActivity {
                     Log.i(TAG, "Location permissions granted!");
                     // permission was granted, yay! Do the
                     // location-related task you need to do.
-//                    requestLocationUpdates();
                     startLocationCollectionService();
                 } else {
                     Log.w(TAG, "Location permissions denied!!!");
