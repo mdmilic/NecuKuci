@@ -6,6 +6,9 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+
+import com.amazonaws.mobile.auth.core.IdentityManager;
 
 import androidx.work.WorkManager;
 import rs.necukuci.permissions.PermissionChecker;
@@ -22,7 +25,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.i(TAG, "Initing worker manager...");
 
 //        provider = locationService.getBestProvider(new Criteria(), false);
 //        Location location = locationService.getLastKnownLocation(provider);
@@ -33,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
             Log.i(TAG, "This is NOT EMULATOR build");
         }
 
+        registerSignOutBtn();
 
         // TODO: Can remove after stable build because of the phone
         WorkManager.getInstance().cancelAllWork();
@@ -77,6 +80,17 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
+    }
+
+    private void registerSignOutBtn() {
+        // Create log out Button on click listener
+        findViewById(R.id.signOutButton).setOnClickListener( new View.OnClickListener() {
+            public void onClick(final View v) {
+                // Cancel all scheduled work as app wont have permissions to access AWS
+                WorkManager.getInstance().cancelAllWork();
+                IdentityManager.getDefaultIdentityManager().signOut();
+            }
+        });
     }
 
     private void startLocationCollectionService() {
