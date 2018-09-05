@@ -1,17 +1,16 @@
 package rs.necukuci.location;
 
 import android.location.Location;
-import android.util.Log;
 
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 
 import rs.necukuci.storage.local.LocalFileLocationDataStore;
+import timber.log.Timber;
 
 public class BackgroundFusedLocationCallback extends LocationCallback {
 
-    private static final String TAG = "LocationCallback";
     private final LocalFileLocationDataStore dataStore;
 
     public BackgroundFusedLocationCallback(final LocalFileLocationDataStore dataStore) {
@@ -19,9 +18,9 @@ public class BackgroundFusedLocationCallback extends LocationCallback {
     }
 
     @Override
-    public void onLocationResult(LocationResult locationResult) {
+    public void onLocationResult(final LocationResult locationResult) {
         super.onLocationResult(locationResult);
-        Log.i(TAG, "Received # location " + locationResult.getLocations().size());
+        Timber.i("Received %s locations", locationResult.getLocations().size());
         for (final Location location : locationResult.getLocations()) {
             dataStore.writeLocation(location);
         }

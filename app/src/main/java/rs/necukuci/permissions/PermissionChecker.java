@@ -1,19 +1,19 @@
 package rs.necukuci.permissions;
 
-import android.*;
-import android.app.*;
-import android.content.*;
-import android.content.pm.*;
-import android.os.*;
-import android.support.v4.app.*;
-import android.support.v4.content.*;
-import android.util.*;
+import android.Manifest;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.pm.PackageManager;
+import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 
-import java.util.*;
+import java.util.Objects;
 
 import rs.necukuci.R;
+import timber.log.Timber;
 
-import static rs.necukuci.MainActivity.*;
 
 public class PermissionChecker {
     public static final int LOCATION_PERMISSION_CODE = 99;
@@ -21,7 +21,7 @@ public class PermissionChecker {
 
     public static boolean checkLocationPermission(final Activity activity) {
         if (ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Log.i(TAG, "Requesting location permission");
+            Timber.i("Requesting location permission");
             // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_FINE_LOCATION)) {
 
@@ -40,21 +40,21 @@ public class PermissionChecker {
                         })
                         .create()
                         .show();
-                Log.i(TAG, "Location permissions requested");
+                Timber.i("Location permissions requested");
             } else {
                 // No explanation needed, we can request the permission.
                 ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_CODE);
             }
             return false;
         } else {
-            Log.i(TAG, "Already have location permissions");
+            Timber.i("Already have location permissions");
             return true;
         }
     }
 
     public static boolean checkNetworkPermission(final Activity activity) {
         if (ContextCompat.checkSelfPermission(activity, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED) {
-            Log.i(TAG, "Requesting internet permission");
+            Timber.i("Requesting internet permission");
             // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.INTERNET)) {
 
@@ -73,14 +73,14 @@ public class PermissionChecker {
                         })
                         .create()
                         .show();
-                Log.i(TAG, "Internet permissions requested");
+                Timber.i("Internet permissions requested");
             } else {
                 // No explanation needed, we can request the permission.
                 ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.INTERNET}, INTERNET_PERMISSION_CODE);
             }
             return false;
         } else {
-            Log.i(TAG, "Already have internet permissions");
+            Timber.i("Already have internet permissions");
             return true;
         }
     }

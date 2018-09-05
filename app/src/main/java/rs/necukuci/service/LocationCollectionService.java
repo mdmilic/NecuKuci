@@ -16,7 +16,6 @@ import android.os.Process;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -26,9 +25,9 @@ import rs.necukuci.location.BackgroundFusedLocationCallback;
 import rs.necukuci.location.BackgroundLocationListener;
 import rs.necukuci.receiver.ServiceRestartBroadcastReceiver;
 import rs.necukuci.storage.local.LocalFileLocationDataStore;
+import timber.log.Timber;
 
 public class LocationCollectionService extends Service {
-    private static final String TAG = "LocationService";
     private static final String CHANNEL_ID = "123456";
 
     private FusedLocationProviderClient fusedLocationClient;
@@ -39,7 +38,7 @@ public class LocationCollectionService extends Service {
 
     public LocationCollectionService() {
         super();
-        Log.i(TAG, "Service created! " + + Process.myTid());
+        Timber.i("Service created! %s", +Process.myTid());
     }
 
     @Override
@@ -64,8 +63,7 @@ public class LocationCollectionService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.i(TAG, "onDestroy! " + Process.myTid());
-//        final Intent broadcastIntent = new Intent("rs.necukuci.RestartLocationService");
+        Timber.i("onDestroy! %s", Process.myTid());
         final Intent broadcastIntent = new Intent(this.getApplicationContext(), ServiceRestartBroadcastReceiver.class);
         sendBroadcast(broadcastIntent);
     }

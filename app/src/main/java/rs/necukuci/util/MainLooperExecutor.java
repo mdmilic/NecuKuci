@@ -2,7 +2,8 @@ package rs.necukuci.util;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
+
+import timber.log.Timber;
 
 public class MainLooperExecutor {
 
@@ -10,10 +11,10 @@ public class MainLooperExecutor {
 
     public static void executeOnMainLoop(final Runnable runnable) {
         if (isMainThread()) {
-            Log.i(TAG, "on main looper, executing...");
+            Timber.i("on main looper, executing...");
             runnable.run();
         } else {
-            Log.i(TAG, "not on main looper, dispatching");
+            Timber.i("not on main looper, dispatching");
             final Handler mainHandler = new Handler(Looper.getMainLooper());
             mainHandler.post(runnable);
         }

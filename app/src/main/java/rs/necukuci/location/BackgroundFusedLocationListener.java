@@ -1,12 +1,12 @@
 package rs.necukuci.location;
 
 import android.location.Location;
-import android.util.Log;
 
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 
 import rs.necukuci.storage.local.LocalFileLocationDataStore;
+import timber.log.Timber;
 
 public class BackgroundFusedLocationListener implements LocationListener {
 
@@ -18,7 +18,7 @@ public class BackgroundFusedLocationListener implements LocationListener {
 
     @Override
     public void onLocationChanged(final Location location) {
-        Log.i("TAGA", "BackgroundFusedLocationListener");
+        Timber.i("BackgroundFusedLocationListener");
         dataStore.writeLocation(location);
     }
 

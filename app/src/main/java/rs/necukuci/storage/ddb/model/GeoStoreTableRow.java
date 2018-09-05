@@ -1,7 +1,5 @@
 package rs.necukuci.storage.ddb.model;
 
-import android.util.Log;
-
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBAttribute;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBHashKey;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBIndexHashKey;
@@ -19,6 +17,7 @@ import rs.necukuci.geo.s2.S2Utils;
 import rs.necukuci.model.GeoHash;
 import rs.necukuci.model.GeoPoint;
 import rs.necukuci.model.Location;
+import timber.log.Timber;
 
 @Builder
 @Data
@@ -66,7 +65,7 @@ public class GeoStoreTableRow extends GeoStoreRow{
         final GeoHash geoHash = S2Utils.generateGeoHash(new GeoPoint(location.getLatitude(), location.getLongitude()));
         final long utcTimeMillis = location.getTime();
         final String geoHash_time = String.format(Locale.US, "%d_%d", geoHash.getVal(), utcTimeMillis);
-        Log.v("BAZA", "GeoHash: " + geoHash_time);
+        Timber.v("GeoHash_Time: %s", geoHash_time);
 
         return GeoStoreTableRow.builder()
                                .userId(userId)

@@ -1,12 +1,11 @@
 package rs.necukuci.storage.s3;
 
-import android.util.Log;
-
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 
+import timber.log.Timber;
+
 public class S3LocationTransferListener implements TransferListener {
-    private static final String TAG = S3LocationTransferListener.class.getSimpleName();
     private Runnable runnable;
 
     public S3LocationTransferListener(final Runnable runnable) {
@@ -16,8 +15,7 @@ public class S3LocationTransferListener implements TransferListener {
     // This is executed back on main thread regardless of the thread that constructs it
     @Override
     public void onStateChanged(final int id, final TransferState state) {
-        Log.i(TAG, "Upload state changed["+ id +"]: " + state);
-        //TODO: State is completed even after fail (though according to doc it shouldn't)
+        Timber.i("Upload state changed[%s]: %s", id, state);
         if (TransferState.COMPLETED == state) {
 //            //upload to DDB
             runnable.run();
@@ -29,11 +27,11 @@ public class S3LocationTransferListener implements TransferListener {
         float percentDonef = ((float) bytesCurrent / (float) bytesTotal) * 100;
         int percentDone = (int) percentDonef;
 
-        Log.d(TAG, "S3Upload - ID:" + id + " bytesCurrent: " + bytesCurrent + " bytesTotal: " + bytesTotal + " " + percentDone + "%");
+        Timber.d("S3Upload[%s] %s bytesCurrent: %s bytesTotal: %s", id, percentDone, bytesCurrent, bytesTotal);
     }
 
     @Override
     public void onError(final int id, final Exception ex) {
-        Log.e(TAG, "Exception uploading file to S3 id: " + id, ex);
+        Timber.e(ex, "Exception uploading file to S3 id: %s", id);
     }
 }
