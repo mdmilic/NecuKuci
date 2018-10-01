@@ -1,6 +1,5 @@
 package rs.necukuci.geo.s2;
 
-import com.google.common.geometry.S2Cell;
 import com.google.common.geometry.S2CellId;
 import com.google.common.geometry.S2LatLng;
 import com.google.common.geometry.S2LatLngRect;
@@ -41,9 +40,9 @@ public class S2Utils {
      */
     public static GeoHash generateGeoHash(final GeoPoint geoPoint) {
         final S2LatLng latLng = S2LatLng.fromDegrees(geoPoint.getLatitude(), geoPoint.getLongitude());
-        final S2Cell cell = new S2Cell(latLng);
-        final S2CellId cellId = cell.id();
-
+//        final S2Cell cell = new S2Cell(latLng);
+//        final S2CellId cellId = cell.id();
+        final S2CellId cellId = S2CellId.fromLatLng(latLng);
         return new GeoHash(cellId.id());
     }
 }

@@ -15,7 +15,7 @@ public class LocalFileLocationStoreUtils {
     }
 
     public static boolean isValidFileName(final String fileName) {
-        return (/*fileName.startsWith("myLocation") // TODO: Might contain duplicates, skip for now. Duplicates are when both providers give data at same time
+        return (/*fileName.startsWith("myLocation") // Legacy file name
                 || */fileName.startsWith("locationCallback")
                 || fileName.startsWith("locationListener"));
     }

@@ -4,7 +4,6 @@ import android.os.AsyncTask;
 
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
-import com.google.common.collect.Lists;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -50,6 +49,12 @@ public class DDBLocationDataStore extends AsyncTask<Path, Void, Void> {
         return null;
     }
 
+    @Override
+    protected void onPostExecute(final Void aVoid) {
+        super.onPostExecute(aVoid);
+        Timber.i("DDB Write async task finished!");
+    }
+
     private void batchStoreInDatabase(final Path locations, final String userID) throws Exception {
 
 //        final Function<String, GeoStoreTableRow> stringObjectFunction = new Function<String, GeoStoreTableRow>() {
@@ -75,10 +80,13 @@ public class DDBLocationDataStore extends AsyncTask<Path, Void, Void> {
             for (final String line : lines) {
                 geoStoreRows.add(convertToRow(line, userID, tag));
             }
+
             Timber.i("Converted file, storing!");
-            for (List<GeoStoreRow> batch : Lists.partition(geoStoreRows, BATCH_SIZE)) {
-                writeBatch(batch);
-            }
+            // TODO: DDBMapper does partitioning by into batches of 25 items, so no point to do our own.
+//            for (List<GeoStoreRow> batch : Lists.partition(new ArrayList<>(distinctTimes.values()), BATCH_SIZE)) {
+//                writeBatch(batch);
+//            }
+            writeBatch(geoStoreRows);
         } catch (final Exception e) {
             Timber.e(e, "File %s had exception converting row: ", locations.getFileName());
             throw e;

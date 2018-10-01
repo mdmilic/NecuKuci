@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
         WorkManager.getInstance().cancelAllWork();
 
         if (PermissionChecker.checkNetworkPermission(this)) {
+            Timber.i("Starting upload worker from Main activity");
             LocationUploadWorker.scheduleLocationUpload();
         }
     }
@@ -67,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted, yay! Do the
                     // location-related task you need to do.
+                    Timber.i("Starting upload worker from permission granted flow");
                     LocationUploadWorker.scheduleLocationUpload();
                 } else {
                     Timber.w("Internet permissions denied!!!");

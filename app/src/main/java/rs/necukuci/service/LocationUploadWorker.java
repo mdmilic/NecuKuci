@@ -69,6 +69,7 @@ public class LocationUploadWorker extends Worker {
         return Result.SUCCESS;
     }
 
+    // TODO: Check if already scheduled
     public static void scheduleLocationUpload() {
         WorkManager.getInstance().cancelAllWork();
         Timber.i("Scheduling uploads from: %s", MainLooperExecutor.isMainThread());

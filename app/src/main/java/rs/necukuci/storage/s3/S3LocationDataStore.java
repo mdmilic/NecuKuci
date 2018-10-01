@@ -57,6 +57,12 @@ public class S3LocationDataStore extends AsyncTask<Path, Void, Void> {
         return null;
     }
 
+    @Override
+    protected void onPostExecute(final Void aVoid) {
+        super.onPostExecute(aVoid);
+        Timber.i("S3 Upload async task finished!");
+    }
+
     private void uploadPathToPermanentStorage(final Path path) {
         Timber.i("Trying to upload file: %s", path.toAbsolutePath()); //getFileName());
 

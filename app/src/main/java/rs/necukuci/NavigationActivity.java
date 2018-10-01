@@ -70,6 +70,7 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
         WorkManager.getInstance().cancelAllWork();
 
         if (PermissionChecker.checkNetworkPermission(this)) {
+            Timber.i("Starting upload worker from navigation activity");
             LocationUploadWorker.scheduleLocationUpload();
         }
     }
