@@ -42,7 +42,7 @@ import static rs.necukuci.storage.local.LocalFileLocationStoreUtils.getTimeFromN
 import static rs.necukuci.storage.local.LocalFileLocationStoreUtils.isValidFileName;
 
 public class GmapFragment extends Fragment implements OnMapReadyCallback {
-
+    private static final int TIME_SPAN_FOR_ROUTE = 7;
     private GoogleMap mMap;
 
     @Nullable
@@ -150,7 +150,6 @@ public class GmapFragment extends Fragment implements OnMapReadyCallback {
         final Context context = this.getActivity().getApplicationContext();
         final File[] files = context.getFilesDir()
                                     .listFiles(new FilenameFilter() {
-                                        private static final int TIME_SPAN_FOR_ROUTE = 100;
                                         private final Instant limitInPast = Instant.now()
                                                                                    .minus(Duration.ofDays(TIME_SPAN_FOR_ROUTE))
                                                                                    .truncatedTo(ChronoUnit.DAYS);
