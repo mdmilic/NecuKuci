@@ -19,6 +19,7 @@ import com.google.android.gms.maps.model.ButtCap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.common.collect.Iterables;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -100,9 +101,14 @@ public class GmapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void centerOnRoute(final Iterable<LatLng> list) {
+        if (list == null || Iterables.isEmpty(list)) {
+            Timber.w("No geo points provided to center the route!!!");
+            return;
+        }
+
         final LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
-        for (LatLng latLng : list) {
+        for (final LatLng latLng : list) {
             builder.include(latLng);
         }
         final LatLngBounds bounds = builder.build();
