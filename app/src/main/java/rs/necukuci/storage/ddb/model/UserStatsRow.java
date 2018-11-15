@@ -21,12 +21,25 @@ import lombok.NoArgsConstructor;
 public class UserStatsRow {
     public static String FURTHEST_EAST_LAT = "FURTHEST_EAST_LAT";
     public static String FURTHEST_EAST_LNG = "FURTHEST_EAST_LNG";
+    public static String FURTHEST_EAST_TIME = "FURTHEST_EAST_TIME";
     public static String FURTHEST_WEST_LAT = "FURTHEST_WEST_LAT";
     public static String FURTHEST_WEST_LNG = "FURTHEST_WEST_LNG";
+    public static String FURTHEST_WEST_TIME = "FURTHEST_WEST_TIME";
     public static String FURTHEST_NORTH_LAT = "FURTHEST_NORTH_LAT";
     public static String FURTHEST_NORTH_LNG = "FURTHEST_NORTH_LNG";
+    public static String FURTHEST_NORTH_TIME = "FURTHEST_NORTH_TIME";
     public static String FURTHEST_SOUTH_LAT = "FURTHEST_SOUTH_LAT";
     public static String FURTHEST_SOUTH_LNG = "FURTHEST_SOUTH_LNG";
+    public static String FURTHEST_SOUTH_TIME = "FURTHEST_SOUTH_TIME";
+    public static String FURTHEST_MAXALT_LAT = "FURTHEST_MAXALT_LAT";
+    public static String FURTHEST_MAXALT_LNG = "FURTHEST_MAXALT_LNG";
+    public static String FURTHEST_MAXALT_TIME = "FURTHEST_MAXALT_TIME";
+    public static String FURTHEST_MINALT_LAT = "FURTHEST_MINALT_LAT";
+    public static String FURTHEST_MINALT_LNG = "FURTHEST_MINALT_LNG";
+    public static String FURTHEST_MINALT_TIME = "FURTHEST_MINALT_TIME";
+    public static String FURTHEST_MAXSPEED_LAT = "FURTHEST_MAXSPEED_LAT";
+    public static String FURTHEST_MAXSPEED_LNG = "FURTHEST_MAXSPEED_LNG";
+    public static String FURTHEST_MAXSPEED_TIME = "FURTHEST_MAXSPEED_TIME";
 
     @DynamoDBHashKey
     private String userId;
@@ -35,6 +48,7 @@ public class UserStatsRow {
     private Set<String> continentsVisited;
     @DynamoDBAttribute
     private Set<String> countriesVisited;
+    // TODO: Use GeoPoint and DynamoDBTypeConverter
     @DynamoDBAttribute
     private Map<String, Double> furthestWent;
     @DynamoDBAttribute

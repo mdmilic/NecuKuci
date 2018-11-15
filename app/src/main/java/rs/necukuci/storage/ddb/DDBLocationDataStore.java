@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import rs.necukuci.config.AWSConfig;
 import rs.necukuci.model.Location;
@@ -124,11 +125,15 @@ public class DDBLocationDataStore extends AsyncTask<Path, Void, Void> {
         double minAlt;
         float maxSpeed;
         final Map<String, Double> furthestWentFromDDB;
+        final Set<String> continentsVisited;
+        final Set<String> countriesVisited;
         if (Objects.isNull(userStats)) {
             maxAlt = 0;
             minAlt = 0;
             maxSpeed = 0;
             furthestWentFromDDB = Collections.emptyMap();
+            continentsVisited = null; // Collections.emptySet(); // Empty set not allowed
+            countriesVisited = null; // Collections.emptySet(); // Empty set not allowed
         } else {
             if (Objects.isNull(userStats.getFurthestWent())) {
                 furthestWentFromDDB = Collections.emptyMap();
@@ -138,41 +143,69 @@ public class DDBLocationDataStore extends AsyncTask<Path, Void, Void> {
             maxAlt = userStats.getMaxAltitude();
             minAlt = userStats.getMinAltitude();
             maxSpeed = userStats.getMaxSpeed();
+            continentsVisited = userStats.getContinentsVisited();
+            countriesVisited = userStats.getCountriesVisited();
         }
-        double latWest = furthestWentFromDDB.getOrDefault(UserStatsRow.FURTHEST_WEST_LAT, 0d);
-        double lngWest = furthestWentFromDDB.getOrDefault(UserStatsRow.FURTHEST_WEST_LNG, 0d);
-        double latEast = furthestWentFromDDB.getOrDefault(UserStatsRow.FURTHEST_EAST_LAT, 0d);
-        double lngEast = furthestWentFromDDB.getOrDefault(UserStatsRow.FURTHEST_EAST_LNG, 0d);
-        double latSouth = furthestWentFromDDB.getOrDefault(UserStatsRow.FURTHEST_SOUTH_LAT, 0d);
-        double lngSouth = furthestWentFromDDB.getOrDefault(UserStatsRow.FURTHEST_SOUTH_LNG, 0d);
-        double latNorth = furthestWentFromDDB.getOrDefault(UserStatsRow.FURTHEST_NORTH_LAT, 0d);
-        double lngNorth = furthestWentFromDDB.getOrDefault(UserStatsRow.FURTHEST_NORTH_LNG, 0d);
+        double latWest = furthestWentFromDDB.getOrDefault(UserStatsRow.FURTHEST_WEST_LAT, 0d); // doesn't matter
+        double lngWest = furthestWentFromDDB.getOrDefault(UserStatsRow.FURTHEST_WEST_LNG, 180d); // max
+        double latEast = furthestWentFromDDB.getOrDefault(UserStatsRow.FURTHEST_EAST_LAT, 0d); // doesn't matter
+        double lngEast = furthestWentFromDDB.getOrDefault(UserStatsRow.FURTHEST_EAST_LNG, -180d); // min
+        double latSouth = furthestWentFromDDB.getOrDefault(UserStatsRow.FURTHEST_SOUTH_LAT, 90d); // max
+        double lngSouth = furthestWentFromDDB.getOrDefault(UserStatsRow.FURTHEST_SOUTH_LNG, 0d); // doesn't matter
+        double latNorth = furthestWentFromDDB.getOrDefault(UserStatsRow.FURTHEST_NORTH_LAT, -90d); // min
+        double lngNorth = furthestWentFromDDB.getOrDefault(UserStatsRow.FURTHEST_NORTH_LNG, 0d); // doesn't matter
+        double lngMaxAlt = furthestWentFromDDB.getOrDefault(UserStatsRow.FURTHEST_MAXALT_LNG, 0d); // doesn't matter
+        double latMaxAlt = furthestWentFromDDB.getOrDefault(UserStatsRow.FURTHEST_MAXALT_LAT, 0d); // doesn't matter
+        double lngMinAlt = furthestWentFromDDB.getOrDefault(UserStatsRow.FURTHEST_MINALT_LNG, 0d); // doesn't matter
+        double latMinAlt = furthestWentFromDDB.getOrDefault(UserStatsRow.FURTHEST_MINALT_LAT, 0d); // doesn't matter
+        double lngMaxSpeed = furthestWentFromDDB.getOrDefault(UserStatsRow.FURTHEST_MAXSPEED_LNG, 0d); // doesn't matter
+        double latMaxSpeed = furthestWentFromDDB.getOrDefault(UserStatsRow.FURTHEST_MAXSPEED_LAT, 0d); // doesn't matter
+        double timeWest = furthestWentFromDDB.getOrDefault(UserStatsRow.FURTHEST_WEST_TIME, 0d); // doesn't matter
+        double timeEast = furthestWentFromDDB.getOrDefault(UserStatsRow.FURTHEST_EAST_TIME, 0d); // doesn't matter
+        double timeSouth = furthestWentFromDDB.getOrDefault(UserStatsRow.FURTHEST_SOUTH_TIME, 0d); // doesn't matter
+        double timeNorth = furthestWentFromDDB.getOrDefault(UserStatsRow.FURTHEST_NORTH_TIME, 0d); // doesn't matter
+        double timeMaxAlt = furthestWentFromDDB.getOrDefault(UserStatsRow.FURTHEST_MAXALT_TIME, 0d); // doesn't matter
+        double timeMinAlt = furthestWentFromDDB.getOrDefault(UserStatsRow.FURTHEST_MINALT_TIME, 0d); // doesn't matter
+        double timeMaxSpeed = furthestWentFromDDB.getOrDefault(UserStatsRow.FURTHEST_MAXSPEED_TIME, 0d); // doesn't matter
         for (final Location location : locations) {
             // Higher LNG => more to east higher LAT => more to north
-            if (location.getLongitude() > lngEast) {
+            if (location.getLongitude() >= lngEast) {
                 lngEast = location.getLongitude();
                 latEast = location.getLatitude();
+                timeEast = location.getTime();
             }
-            if (location.getLongitude() < lngWest) {
+            if (location.getLongitude() <= lngWest) {
                 lngWest = location.getLongitude();
                 latWest = location.getLatitude();
+                timeWest = location.getTime();
             }
-            if (location.getLatitude() > latNorth) {
+            if (location.getLatitude() >= latNorth) {
                 lngNorth = location.getLongitude();
                 latNorth = location.getLatitude();
+                timeNorth = location.getTime();
             }
-            if (location.getLatitude() < latSouth) {
+            if (location.getLatitude() <= latSouth) {
                 lngSouth = location.getLongitude();
                 latSouth = location.getLatitude();
+                timeSouth = location.getTime();
             }
-            if (location.getAltitude() > maxAlt) {
+            if (location.getAltitude() >= maxAlt) {
                 maxAlt = location.getAltitude();
+                lngMaxAlt = location.getLongitude();
+                latMaxAlt = location.getLatitude();
+                timeMaxAlt = location.getTime();
             }
-            if (location.getAltitude() < minAlt) {
+            if (location.getAltitude() <= minAlt) {
                 minAlt = location.getAltitude();
+                lngMinAlt = location.getLongitude();
+                latMinAlt = location.getLatitude();
+                timeMinAlt = location.getTime();
             }
-            if (location.getSpeed() > maxSpeed) {
+            if (location.getSpeed() >= maxSpeed) {
                 maxSpeed = location.getSpeed();
+                lngMaxSpeed = location.getLongitude();
+                latMaxSpeed = location.getLatitude();
+                timeMaxSpeed = location.getTime();
             }
         }
 
@@ -185,11 +218,24 @@ public class DDBLocationDataStore extends AsyncTask<Path, Void, Void> {
         furthestMap.put(UserStatsRow.FURTHEST_EAST_LNG, lngEast);
         furthestMap.put(UserStatsRow.FURTHEST_WEST_LAT, latWest);
         furthestMap.put(UserStatsRow.FURTHEST_WEST_LNG, lngWest);
+        furthestMap.put(UserStatsRow.FURTHEST_MAXALT_LAT, latMaxAlt);
+        furthestMap.put(UserStatsRow.FURTHEST_MAXALT_LNG, lngMaxAlt);
+        furthestMap.put(UserStatsRow.FURTHEST_MINALT_LAT, latMinAlt);
+        furthestMap.put(UserStatsRow.FURTHEST_MINALT_LNG, lngMinAlt);
+        furthestMap.put(UserStatsRow.FURTHEST_MAXSPEED_LAT, latMaxSpeed);
+        furthestMap.put(UserStatsRow.FURTHEST_MAXSPEED_LNG, lngMaxSpeed);
+        furthestMap.put(UserStatsRow.FURTHEST_NORTH_TIME, timeNorth);
+        furthestMap.put(UserStatsRow.FURTHEST_SOUTH_TIME, timeSouth);
+        furthestMap.put(UserStatsRow.FURTHEST_EAST_TIME, timeEast);
+        furthestMap.put(UserStatsRow.FURTHEST_WEST_TIME, timeWest);
+        furthestMap.put(UserStatsRow.FURTHEST_MAXALT_TIME, timeMaxAlt);
+        furthestMap.put(UserStatsRow.FURTHEST_MINALT_TIME, timeMinAlt);
+        furthestMap.put(UserStatsRow.FURTHEST_MAXSPEED_TIME, timeMaxSpeed);
 
         final UserStatsRow newStats = UserStatsRow.builder()
                                                   .userId(userID)
-                                                  .continentsVisited(userStats.getContinentsVisited())
-                                                  .countriesVisited(userStats.getCountriesVisited())
+                                                  .continentsVisited(continentsVisited)
+                                                  .countriesVisited(countriesVisited)
                                                   .furthestWent(furthestMap)
                                                   .lastKnownLat(lastElem.getLatitude())
                                                   .lastKnownLng(lastElem.getLongitude())
