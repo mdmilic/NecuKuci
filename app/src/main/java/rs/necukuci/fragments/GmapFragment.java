@@ -20,6 +20,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.common.collect.Iterables;
+import com.google.common.geometry.S2LatLng;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -125,33 +126,51 @@ public class GmapFragment extends Fragment implements OnMapReadyCallback {
      * get last X days of traveling
      */
     public Iterable<LatLng> getRoute(final String fileNamePrefix) {
-        final File[] files = loadFiles(fileNamePrefix);
+        final File[] files = loadFilesOrderedByDate(fileNamePrefix);
 
-        final ArrayList<LatLng> latLngs = convertToLatLng(files);
-        Timber.i("%s locations found from %s files ", latLngs.size(), files.length);
+        final List<LatLng> latLngs = convertToLatLng(files);
+//        double distance = 0;
+//        S2LatLng previous = S2LatLng.fromDegrees(latLngs.get(0).latitude, latLngs.get(0).longitude);
+//        for (final LatLng latLng : latLngs) {
+//            final S2LatLng next = S2LatLng.fromDegrees(latLng.latitude, latLng.longitude);
+//            distance += next.getEarthDistance(previous);
+//            previous = next;
+//        }
+//
+//        Timber.i("%s locations found from %s files with total distance %s", latLngs.size(), files.length, distance);
         return latLngs;
     }
 
     @NonNull
     private ArrayList<LatLng> convertToLatLng(final File[] files) {
         final ArrayList<LatLng> latLngs = new ArrayList<>();
+//        long totalDistance = 0;
         for (final File file : files) {
+            long fileDistance = 0;
             try {
                 final List<String> lines = Files.readAllLines(file.toPath());
+//                final Location first = createLocationFromLine(lines.get(0));
+//                S2LatLng previous = S2LatLng.fromDegrees(first.getLatitude(), first.getLongitude());
                 for (final String line : lines) {
                     final Location location = createLocationFromLine(line);
-                    final LatLng latLng = new LatLng(location.getLatitude(),
-                                                     location.getLongitude());
+//                    final S2LatLng newPoint = S2LatLng.fromDegrees(location.getLatitude(), location.getLongitude());
+//                    final double meterDistance = newPoint.getEarthDistance(previous);
+//                    fileDistance += meterDistance;
+//                    previous = newPoint;
+                    final LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
                     latLngs.add(latLng);
                 }
             } catch (IOException e) {
                 Timber.e(e, "Failed to load the file %s", file.getAbsolutePath());
             }
+            Timber.i("Distance for file %s is %s", file.toPath().getFileName(), fileDistance);
+//            totalDistance += fileDistance;
         }
+//        Timber.i("Total distance from all files is %s", totalDistance);
         return latLngs;
     }
 
-    private File[] loadFiles(final String fileNamePrefix) {
+    private File[] loadFilesOrderedByDate(final String fileNamePrefix) {
         // try loading last few days of files
         final Context context = this.getActivity().getApplicationContext();
         final File[] files = context.getFilesDir()

@@ -26,7 +26,6 @@ public class S2Utils {
         if (minPoint != null && maxPoint != null) {
             final S2LatLng minLatLng = S2LatLng.fromDegrees(minPoint.getLatitude(), minPoint.getLongitude());
             final S2LatLng maxLatLng = S2LatLng.fromDegrees(maxPoint.getLatitude(), maxPoint.getLongitude());
-
             return new S2LatLngRect(minLatLng, maxLatLng);
         } else {
             throw new IllegalArgumentException("min and max points must exist!!!");
