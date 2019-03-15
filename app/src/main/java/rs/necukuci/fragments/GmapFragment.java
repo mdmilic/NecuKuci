@@ -1,11 +1,14 @@
 package rs.necukuci.fragments;
 
+import android.Manifest;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,7 +52,7 @@ public class GmapFragment extends Fragment implements OnMapReadyCallback {
 
     @Nullable
     @Override
-    public View onCreateView(final LayoutInflater inflater,  @Nullable final ViewGroup container, final Bundle savedInstanceState) {
+    public View onCreateView(final LayoutInflater inflater, @Nullable final ViewGroup container, final Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_gmap, container, false);
     }
 
@@ -57,7 +60,7 @@ public class GmapFragment extends Fragment implements OnMapReadyCallback {
     public void onViewCreated(final View view, @Nullable final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         final MapFragment mapFragment = (MapFragment) getChildFragmentManager().findFragmentById(R.id.map_fragment);
-        mapFragment.getMapAsync(this );
+        mapFragment.getMapAsync(this);
     }
 
     @Override
@@ -83,7 +86,12 @@ public class GmapFragment extends Fragment implements OnMapReadyCallback {
 
         mMap.addPolyline(polylineOptions1);
         mMap.addPolyline(polylineOptions2);
-
+        if (ContextCompat.checkSelfPermission(this.getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(this.getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            mMap.setMyLocationEnabled(true);
+        } else {
+            // TODO Request permission
+        }
         centerOnRoute(list1);
 
         // Add a marker in Sydney and move the camera
@@ -119,7 +127,6 @@ public class GmapFragment extends Fragment implements OnMapReadyCallback {
         int height = getResources().getDisplayMetrics().heightPixels;
         int padding = (int) (width * 0.12);
         mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding));
-//        mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, BOUND_PADDING));
     }
 
     /**
@@ -129,44 +136,39 @@ public class GmapFragment extends Fragment implements OnMapReadyCallback {
         final File[] files = loadFilesOrderedByDate(fileNamePrefix);
 
         final List<LatLng> latLngs = convertToLatLng(files);
-//        double distance = 0;
-//        S2LatLng previous = S2LatLng.fromDegrees(latLngs.get(0).latitude, latLngs.get(0).longitude);
-//        for (final LatLng latLng : latLngs) {
-//            final S2LatLng next = S2LatLng.fromDegrees(latLng.latitude, latLng.longitude);
-//            distance += next.getEarthDistance(previous);
-//            previous = next;
-//        }
-//
-//        Timber.i("%s locations found from %s files with total distance %s", latLngs.size(), files.length, distance);
+//        calculateDistance(latLngs, files.length);
+
         return latLngs;
+    }
+
+    private void calculateDistance(final List<LatLng> latLngs, final int filesNumber) {
+        // TEMP: Calculate distance covered for the time period
+        double distance = 0;
+        S2LatLng previous = S2LatLng.fromDegrees(latLngs.get(0).latitude, latLngs.get(0).longitude);
+        for (final LatLng latLng : latLngs) {
+            final S2LatLng next = S2LatLng.fromDegrees(latLng.latitude, latLng.longitude);
+            distance += next.getEarthDistance(previous);
+            previous = next;
+        }
+        Timber.i("%s locations found from %s files with total distance %s", latLngs.size(), filesNumber, distance);
+        // END TEMP
     }
 
     @NonNull
     private ArrayList<LatLng> convertToLatLng(final File[] files) {
         final ArrayList<LatLng> latLngs = new ArrayList<>();
-//        long totalDistance = 0;
         for (final File file : files) {
-            long fileDistance = 0;
             try {
                 final List<String> lines = Files.readAllLines(file.toPath());
-//                final Location first = createLocationFromLine(lines.get(0));
-//                S2LatLng previous = S2LatLng.fromDegrees(first.getLatitude(), first.getLongitude());
                 for (final String line : lines) {
                     final Location location = createLocationFromLine(line);
-//                    final S2LatLng newPoint = S2LatLng.fromDegrees(location.getLatitude(), location.getLongitude());
-//                    final double meterDistance = newPoint.getEarthDistance(previous);
-//                    fileDistance += meterDistance;
-//                    previous = newPoint;
                     final LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
                     latLngs.add(latLng);
                 }
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 Timber.e(e, "Failed to load the file %s", file.getAbsolutePath());
             }
-            Timber.i("Distance for file %s is %s", file.toPath().getFileName(), fileDistance);
-//            totalDistance += fileDistance;
         }
-//        Timber.i("Total distance from all files is %s", totalDistance);
         return latLngs;
     }
 
