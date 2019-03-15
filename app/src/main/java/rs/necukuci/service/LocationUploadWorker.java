@@ -4,7 +4,8 @@ import android.support.annotation.NonNull;
 
 import java.io.File;
 import java.time.Duration;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
@@ -45,25 +46,29 @@ public class LocationUploadWorker extends Worker {
     private Result startUpload() {
         final String[] fileList = this.getApplicationContext().fileList();
         final S3LocationFileUploader s3LocationFileUploader = new S3LocationFileUploader(new AWSConfig(this.getApplicationContext()));
-        Timber.i("Files to upload: %s", Arrays.toString(fileList));
-        for (int i = 0; i < fileList.length; i++) {
-            final String fileName = fileList[i];
+        final List<String> filesToUpload = new ArrayList<>();
+        for (final String fileName : fileList) {
             if (isValidForUpload(fileName)) {
-                final File file = new File(this.getApplicationContext().getFilesDir(), fileName);
-
-                Timber.i("Starting upload of filePath %s, %s/%s/%s", file.getAbsolutePath(), file.canRead(), file.canWrite(), file.canExecute());
-
-                try {
-                    Thread.sleep(2000);
-                    s3LocationFileUploader.uploadFiles(file.toPath());
-                } catch (final InterruptedException e) {
-                    Timber.e("Thread interrupted while sleeping!!!");
-                }
-                if (i >= 2) {
-                    break;
-                }
+                filesToUpload.add(fileName);
             } else {
                 Timber.w("Skipping file %s", fileName);
+            }
+        }
+        Timber.i("Files to upload (%s): %s", filesToUpload.size(), filesToUpload);
+
+        for (int i = 0; i < filesToUpload.size(); i++) {
+            final File file = new File(this.getApplicationContext().getFilesDir(), filesToUpload.get(i));
+
+            Timber.i("Starting upload of filePath %s, %s/%s/%s", file.getAbsolutePath(), file.canRead(), file.canWrite(), file.canExecute());
+
+            try {
+                Thread.sleep(2000);
+                s3LocationFileUploader.uploadFiles(file.toPath());
+            } catch (final InterruptedException e) {
+                Timber.e("Thread interrupted while sleeping!!!");
+            }
+            if (i >= 2) {
+                break;
             }
         }
         return Result.SUCCESS;
