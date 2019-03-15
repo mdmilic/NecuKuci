@@ -124,27 +124,46 @@ public class DDBLocationDataStore extends AsyncTask<Path, Void, Void> {
         double maxAlt;
         double minAlt;
         float maxSpeed;
+        long lastSeen;
+        double lastSeenLat;
+        double lastSeenLng;
         final Map<String, Double> furthestWentFromDDB;
         final Set<String> continentsVisited;
         final Set<String> countriesVisited;
+        final String homeCountry;
         if (Objects.isNull(userStats)) {
             maxAlt = 0;
             minAlt = 0;
             maxSpeed = 0;
+            lastSeen = lastElem.getTime();
+            lastSeenLat = lastElem.getLatitude();
+            lastSeenLng = lastElem.getLongitude();
             furthestWentFromDDB = Collections.emptyMap();
             continentsVisited = null; // Collections.emptySet(); // Empty set not allowed
             countriesVisited = null; // Collections.emptySet(); // Empty set not allowed
+            homeCountry = null; // Empty string not allowed
         } else {
             if (Objects.isNull(userStats.getFurthestWent())) {
                 furthestWentFromDDB = Collections.emptyMap();
             } else {
                 furthestWentFromDDB = userStats.getFurthestWent();
             }
+            // No need to constantly update lastSeen after each iteration, just update it here
+            if (userStats.getLastSeen() <= lastElem.getTime()) {
+                lastSeen = lastElem.getTime();
+                lastSeenLat = lastElem.getLatitude();
+                lastSeenLng = lastElem.getLongitude();
+            } else {
+                lastSeen = userStats.getLastSeen();
+                lastSeenLat = userStats.getLastKnownLat();
+                lastSeenLng = userStats.getLastKnownLng();
+            }
             maxAlt = userStats.getMaxAltitude();
             minAlt = userStats.getMinAltitude();
             maxSpeed = userStats.getMaxSpeed();
             continentsVisited = userStats.getContinentsVisited();
             countriesVisited = userStats.getCountriesVisited();
+            homeCountry = userStats.getHomeCountry();
         }
         double latWest = furthestWentFromDDB.getOrDefault(UserStatsRow.FURTHEST_WEST_LAT, 0d); // doesn't matter
         double lngWest = furthestWentFromDDB.getOrDefault(UserStatsRow.FURTHEST_WEST_LNG, 180d); // max
@@ -237,12 +256,13 @@ public class DDBLocationDataStore extends AsyncTask<Path, Void, Void> {
                                                   .continentsVisited(continentsVisited)
                                                   .countriesVisited(countriesVisited)
                                                   .furthestWent(furthestMap)
-                                                  .lastKnownLat(lastElem.getLatitude())
-                                                  .lastKnownLng(lastElem.getLongitude())
-                                                  .lastSeen(lastElem.getTime())
+                                                  .lastKnownLat(lastSeenLat)
+                                                  .lastKnownLng(lastSeenLng)
+                                                  .lastSeen(lastSeen)
                                                   .maxAltitude(maxAlt)
                                                   .minAltitude(minAlt)
                                                   .maxSpeed(maxSpeed)
+                                                  .homeCountry(homeCountry)
                                                   .build();
 
         DYNAMO_DB_MAPPER.save(newStats);

@@ -108,7 +108,7 @@ public class AuthActivity extends AppCompatActivity {
                 this.startForegroundService(locationCollectionServiceIntent);
 
                 final View view = findViewById(R.id.authActivityID);
-                Snackbar.make(view, "NecuKuci started tracking your travel", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+                Snackbar.make(view, "NecuKuci started tracking your travel", Snackbar.LENGTH_LONG).show();
             } else {
                 Timber.i("Location collection service already started!");
             }

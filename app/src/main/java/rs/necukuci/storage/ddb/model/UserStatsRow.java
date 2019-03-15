@@ -63,6 +63,8 @@ public class UserStatsRow {
     private double minAltitude;
     @DynamoDBAttribute
     private float maxSpeed;
+    @DynamoDBAttribute
+    private String homeCountry;
 
     public static UserStatsRow empty(final String user) {
         return UserStatsRow.builder()

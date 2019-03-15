@@ -85,6 +85,8 @@ public class PermissionChecker {
         }
     }
 
+    // TODO Try to move the callback for permissions here
+
     /* Checks if external storage is available for read and write */
     public static boolean isExternalStorageWritable() {
         return Objects.equals(Environment.MEDIA_MOUNTED, Environment.getExternalStorageState());
